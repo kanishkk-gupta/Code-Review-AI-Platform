@@ -28,24 +28,28 @@ graph TD
     API --> JobStore[(JobStore)]
     API -->|BackgroundTask| Graph[LangGraph Orchestrator]
     
-    subgraph LangGraph Pipeline
-        Graph --> repository_processor
-        repository_processor --> chunk_generator
-        chunk_generator --> parallel_analysis
+    subgraph Pipeline [LangGraph Pipeline]
+        Graph --> RP[repository_processor]
+        RP --> CG[chunk_generator]
+        CG --> PA[parallel_analysis]
         
-        subgraph Parallel Agents
-            parallel_analysis --> BugAgent
-            parallel_analysis --> SecurityAgent
-            parallel_analysis --> SolidAgent
-            parallel_analysis --> ComplexityAgent
-            parallel_analysis --> ArchitectureAgent
+        subgraph Agents [Parallel Agents]
+            PA --> BA[BugAgent]
+            PA --> SA[SecurityAgent]
+            PA --> SoA[SolidAgent]
+            PA --> CA[ComplexityAgent]
+            PA --> AA[ArchitectureAgent]
         end
         
-        Parallel Agents --> report_agent_node
+        BA --> RAN[report_agent_node]
+        SA --> RAN
+        SoA --> RAN
+        CA --> RAN
+        AA --> RAN
     end
     
-    report_agent_node --> JobStore
-    Client -->|GET /report/{id}| API
+    RAN --> JobStore
+    Client -->|GET /report/id| API
 ```
 
 ## 💻 Tech Stack
