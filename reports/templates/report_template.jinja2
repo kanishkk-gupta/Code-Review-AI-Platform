@@ -1,0 +1,176 @@
+{# report_template.jinja2 — CodeGuardian AI Review Report Template #}
+{# Context variables injected by reports/generator.py:                #}
+{#   result                       ReviewResult (Pydantic model)       #}
+{#   reviewed_at_fmt              str — formatted datetime            #}
+{#   score_grade                  str — A/B/C/D/F                     #}
+{#   bug_findings_sorted          list[BugFinding]                    #}
+{#   solid_findings_sorted        list[SolidFinding]                  #}
+{#   architecture_findings_sorted list[ArchitectureFinding]           #}
+{#   security_findings_sorted     list[SecurityFinding]               #}
+{#   complexity_findings_sorted   list[ComplexityFinding]             #}
+
+# CodeGuardian AI — Code Review Report
+
+**Project:** {{ result.metadata.repository_name }}
+**Language:** {{ result.metadata.primary_language }}
+**Reviewed At:** {{ reviewed_at_fmt }}
+**Job ID:** `{{ result.job_id }}`
+
+---
+
+## 📊 Overall Quality Score: {{ result.overall_score }}/100 — Grade {{ score_grade }}
+
+| Category | Findings | Weight |
+|----------|----------|--------|
+| 🐛 Bugs | {{ result.bug_findings | length }} | 30% |
+| 🏗️ SOLID Violations | {{ result.solid_findings | length }} | 25% |
+| 🏛️ Architecture | {{ result.architecture_findings | length }} | 20% |
+| 🔒 Security | {{ result.security_findings | length }} | 15% |
+| 📊 Complexity | {{ result.complexity_findings | length }} | 10% |
+| **Total** | **{{ result.total_findings }}** | — |
+
+> **Repository Stats:** {{ result.metadata.total_files }} files · {{ result.metadata.total_lines }} lines of code
+
+---
+
+{{ result.summary_markdown }}
+
+---
+
+{% if security_findings_sorted %}
+## 🔒 Security Findings ({{ security_findings_sorted | length }})
+
+{% for f in security_findings_sorted %}
+### [{{ f.severity }}] {{ f.title }}
+
+| Field | Value |
+|-------|-------|
+| **File** | `{{ f.file_path }}` (lines {{ f.start_line }}–{{ f.end_line }}) |
+| **Category** | {{ f.category }} |
+{% if f.cwe_id %}| **CWE** | {{ f.cwe_id }} |{% endif %}
+{% if f.cvss_score %}| **CVSS** | {{ f.cvss_score }} |{% endif %}
+| **Exploitability** | {{ f.exploitability }} |
+| **Confidence** | {{ "%.0f"|format(f.confidence * 100) }}% |
+
+{{ f.description }}
+
+{% if f.suggested_fix %}
+**Suggested Fix:**
+```
+{{ f.suggested_fix }}
+```
+{% endif %}
+
+---
+{% endfor %}
+{% endif %}
+
+{% if bug_findings_sorted %}
+## 🐛 Bug Findings ({{ bug_findings_sorted | length }})
+
+{% for f in bug_findings_sorted %}
+### [{{ f.severity }}] {{ f.title }}
+
+| Field | Value |
+|-------|-------|
+| **File** | `{{ f.file_path }}` (lines {{ f.start_line }}–{{ f.end_line }}) |
+| **Pattern** | {{ f.bug_pattern }} |
+| **Reproducible** | {{ f.reproducible }} |
+| **Confidence** | {{ "%.0f"|format(f.confidence * 100) }}% |
+
+{{ f.description }}
+
+{% if f.suggested_fix %}
+**Suggested Fix:**
+```
+{{ f.suggested_fix }}
+```
+{% endif %}
+
+---
+{% endfor %}
+{% endif %}
+
+{% if architecture_findings_sorted %}
+## 🏛️ Architecture Findings ({{ architecture_findings_sorted | length }})
+
+{% for f in architecture_findings_sorted %}
+### [{{ f.severity }}] {{ f.title }}
+
+| Field | Value |
+|-------|-------|
+| **File / Scope** | `{{ f.file_path }}` |
+| **Anti-Pattern** | {{ f.smell }} |
+| **Impact Radius** | {{ f.impact_radius }} |
+| **Confidence** | {{ "%.0f"|format(f.confidence * 100) }}% |
+{% if f.affected_modules %}| **Affected Modules** | {{ f.affected_modules | join(", ") }} |{% endif %}
+
+{{ f.description }}
+
+{% if f.suggested_fix %}
+**Suggested Fix:**
+```
+{{ f.suggested_fix }}
+```
+{% endif %}
+
+---
+{% endfor %}
+{% endif %}
+
+{% if solid_findings_sorted %}
+## 🏗️ SOLID Violation Findings ({{ solid_findings_sorted | length }})
+
+{% for f in solid_findings_sorted %}
+### [{{ f.severity }}] {{ f.title }}
+
+| Field | Value |
+|-------|-------|
+| **File** | `{{ f.file_path }}` (lines {{ f.start_line }}–{{ f.end_line }}) |
+| **Principle** | {{ f.principle }} |
+| **Violating Entity** | `{{ f.violated_class_or_function }}` |
+| **Confidence** | {{ "%.0f"|format(f.confidence * 100) }}% |
+{% if f.refactor_hint %}| **Refactor Hint** | {{ f.refactor_hint }} |{% endif %}
+
+{{ f.description }}
+
+{% if f.suggested_fix %}
+**Suggested Fix:**
+```
+{{ f.suggested_fix }}
+```
+{% endif %}
+
+---
+{% endfor %}
+{% endif %}
+
+{% if complexity_findings_sorted %}
+## 📊 Complexity Findings ({{ complexity_findings_sorted | length }})
+
+{% for f in complexity_findings_sorted %}
+### [{{ f.severity }}] {{ f.title }}
+
+| Field | Value |
+|-------|-------|
+| **File** | `{{ f.file_path }}` (lines {{ f.start_line }}–{{ f.end_line }}) |
+{% if f.cyclomatic_complexity is defined and f.cyclomatic_complexity %}| **Cyclomatic Complexity** | {{ f.cyclomatic_complexity }} |{% endif %}
+{% if f.cognitive_complexity is defined and f.cognitive_complexity %}| **Cognitive Complexity** | {{ f.cognitive_complexity }} |{% endif %}
+{% if f.nesting_depth is defined and f.nesting_depth %}| **Max Nesting Depth** | {{ f.nesting_depth }} |{% endif %}
+{% if f.function_name is defined and f.function_name %}| **Function** | `{{ f.function_name }}` |{% endif %}
+| **Confidence** | {{ "%.0f"|format(f.confidence * 100) }}% |
+
+{{ f.description }}
+
+{% if f.suggested_fix %}
+**Suggested Fix:**
+```
+{{ f.suggested_fix }}
+```
+{% endif %}
+
+---
+{% endfor %}
+{% endif %}
+
+*Report generated by CodeGuardian AI · {{ reviewed_at_fmt }}*

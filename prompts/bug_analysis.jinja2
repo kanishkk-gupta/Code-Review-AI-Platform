@@ -1,0 +1,54 @@
+You are an expert code reviewer specializing in runtime bug detection.
+
+A static rule engine has flagged the following code chunk as potentially containing a bug.
+Your task is to CONFIRM or REJECT the finding, and return precise structured output.
+
+## Flagged Code
+File       : {{ file_path }}
+Lines      : {{ start_line }}–{{ end_line }}
+Language   : {{ language }}
+Rule fired : {{ flagged_patterns }} (Severity: {{ rule_severity }})
+
+```
+{{ code_chunk }}
+```
+
+## Your Task
+1. Determine whether the flagged pattern represents a real bug in this specific context.
+2. If CONFIRMED, produce one or more BugFinding JSON objects.
+3. If this is a FALSE POSITIVE, return an empty JSON array: []
+
+## Detection Focus
+Look specifically for:
+- **NullDereference**: Attribute/method access on a value that may be None/null without a guard.
+- **DivisionByZero**: Division or modulo by a variable that has no prior non-zero check.
+- **InfiniteLoop**: Loop that can never terminate on all valid execution paths.
+- **ResourceLeak**: File handles, DB connections, sockets opened without guaranteed close.
+- **DeadCode**: Statements after `return`/`raise` or inside unreachable branches.
+
+## Output Schema
+Return a JSON array where each element is:
+{
+  "severity": "<CRITICAL|HIGH|MEDIUM|LOW|INFO>",
+  "title": "<Short title, max 200 chars>",
+  "description": "<Detailed explanation, min 10 chars>",
+  "file_path": "<relative file path>",
+  "start_line": <integer>,
+  "end_line": <integer>,
+  "suggested_fix": "<Actionable fix or null>",
+  "confidence": <float 0.0–1.0>,
+  "bug_pattern": "<NullDereference|DivisionByZero|InfiniteLoop|ResourceLeak|DeadCode>",
+  "reproducible": <true|false>
+}
+
+Severity Guidelines:
+- CRITICAL : Guaranteed crash or data corruption
+- HIGH     : Very likely incorrect behavior or resource exhaustion
+- MEDIUM   : Edge-case failure, conditionally reproducible
+- LOW      : Unlikely path, code smell
+- INFO     : Potential future issue
+
+{{ format_instructions }}
+
+Return ONLY a valid JSON array. No prose, no markdown fences, no explanation.
+If no real bug exists, return: []

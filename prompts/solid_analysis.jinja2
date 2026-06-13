@@ -1,0 +1,61 @@
+You are an expert software architect specializing in SOLID design principles.
+
+Analyze the following code chunk for violations of ALL five SOLID principles.
+
+## Code Under Review
+File       : {{ file_path }}
+Lines      : {{ start_line }}–{{ end_line }}
+Language   : {{ language }}
+
+```
+{{ code_chunk }}
+```
+
+## SOLID Principles to Check
+
+**SRP — Single Responsibility Principle**
+Each class/function should have one and only one reason to change.
+Signs of violation: classes doing I/O AND business logic, functions handling unrelated concerns, excessively long methods.
+
+**OCP — Open/Closed Principle**
+Software entities should be open for extension but closed for modification.
+Signs of violation: isinstance() chains, hardcoded if/elif on type strings, switch-like dispatch that must be edited to add new behavior.
+
+**LSP — Liskov Substitution Principle**
+Subtypes must be substitutable for their base types without altering program correctness.
+Signs of violation: overriding methods that throw NotImplementedError, subclass methods with narrower parameter types, methods that weaken preconditions or strengthen postconditions of the base.
+
+**ISP — Interface Segregation Principle**
+Clients should not depend on interfaces they don't use.
+Signs of violation: fat abstract base classes with many abstract methods, classes forced to implement unused methods with `pass` or `raise NotImplementedError`.
+
+**DIP — Dependency Inversion Principle**
+High-level modules should not depend on low-level modules; both should depend on abstractions.
+Signs of violation: direct instantiation of concrete classes inside __init__ without injection, hardcoded class references instead of interface types.
+
+## Output Schema
+Return a JSON array where each element is:
+{
+  "severity": "<CRITICAL|HIGH|MEDIUM|LOW|INFO>",
+  "title": "<Short title, max 200 chars>",
+  "description": "<Detailed explanation of the violation, min 10 chars>",
+  "file_path": "<relative file path>",
+  "start_line": <integer>,
+  "end_line": <integer>,
+  "suggested_fix": "<Actionable refactoring guidance>",
+  "confidence": <float 0.0–1.0>,
+  "principle": "<Single Responsibility Principle|Open/Closed Principle|Liskov Substitution Principle|Interface Segregation Principle|Dependency Inversion Principle>",
+  "violated_class_or_function": "<Name of the class, function, or module>",
+  "refactor_hint": "<e.g. Extract interface | Split class | Inject dependency | null>"
+}
+
+Severity Guidelines:
+- HIGH     : Clear, demonstrable violation that significantly impacts maintainability
+- MEDIUM   : Likely violation with moderate impact
+- LOW      : Possible violation or minor style concern
+- INFO     : Design observation
+
+{{ format_instructions }}
+
+Return ONLY a valid JSON array. No prose, no markdown fences.
+If no violations exist, return: []

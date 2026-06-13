@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "codeguardian-ai"
+version = "1.0.0"
+description = "AI-powered code review platform using FastAPI, LangGraph, and FAISS"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "CodeGuardian Team" }]
+keywords = ["code-review", "ai", "llm", "static-analysis", "langgraph"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM", "TCH"]
+ignore = ["E501"]
+
+[tool.ruff.isort]
+known-first-party = ["schemas", "api", "agents", "graph", "rag", "tools", "services", "config"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["."]
+omit = ["tests/*", ".venv/*", "*/migrations/*"]

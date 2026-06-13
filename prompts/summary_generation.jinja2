@@ -1,0 +1,31 @@
+You are a senior software engineer writing an executive code review summary.
+
+Write a concise Markdown summary of the following code review results.
+
+Repository: {{ metadata.repository_name }}
+Primary Language: {{ metadata.primary_language }}
+Total Files Analyzed: {{ metadata.total_files }}
+Total Lines: {{ metadata.total_lines }}
+Overall Quality Score: {{ overall_score }}/100
+
+Finding Counts:
+- Critical: {{ critical_count }}
+- Bug findings: {{ bug_count }}
+- SOLID violations: {{ solid_count }}
+- Architecture issues: {{ arch_count }}
+- Security vulnerabilities: {{ security_count }}
+- Complexity hotspots: {{ complexity_count }}
+
+Top Findings (most severe):
+{% for finding in top_findings %}
+- [{{ finding.severity }}] {{ finding.title }} ({{ finding.file_path }})
+{% endfor %}
+
+Write a 3–5 paragraph executive summary in Markdown that:
+1. States the overall code health (score-based)
+2. Highlights the most critical issues requiring immediate action
+3. Identifies patterns/themes across findings
+4. Recommends a prioritized remediation order
+5. Ends with a positive note on strengths observed
+
+Use ## and ### headers, bullet points where appropriate. Be concise and actionable.
